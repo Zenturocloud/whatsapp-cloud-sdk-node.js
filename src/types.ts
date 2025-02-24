@@ -27,7 +27,7 @@ export interface ClientConfig {
   version?: string;
 }
 
-// Common types
+
 export type MediaType = 'audio' | 'document' | 'image' | 'sticker' | 'video';
 
 export interface Component {
@@ -180,7 +180,7 @@ export interface Contact {
   }>;
 }
 
-// Message Sending Parameters
+
 export interface SendTextMessageParams {
   to: string;
   text: string;
@@ -231,7 +231,7 @@ export interface MarkMessageAsReadParams {
   messageId: string;
 }
 
-// Media Parameters
+
 export interface UploadMediaParams {
   file: string;
   type: string;
@@ -245,7 +245,7 @@ export interface DeleteMediaParams {
   mediaId: string;
 }
 
-// Business Profile Parameters
+
 export interface BusinessProfileParams {
   about?: string;
   address?: string;
@@ -256,7 +256,7 @@ export interface BusinessProfileParams {
   profilePictureUrl?: string;
 }
 
-// Phone Number Parameters
+
 export interface RegisterPhoneNumberParams {
   cc: string;
   phone_number: string;
@@ -274,7 +274,7 @@ export interface UpdatePhoneNumberSettings {
   };
 }
 
-// Template Parameters
+
 export interface GetTemplatesParams {
   limit?: number;
   offset?: number;
@@ -301,7 +301,7 @@ export interface DeleteTemplateParams {
   name: string;
 }
 
-// Response Types
+
 export interface SendMessageResponse {
   messaging_product: string;
   contacts: Array<{
@@ -383,7 +383,7 @@ export interface CreateTemplateResponse {
   category: string;
 }
 
-// Webhook Types
+
 export interface WebhookEvent {
   object: string;
   entry: Array<{
@@ -582,4 +582,61 @@ export interface WebhookHandlerConfig {
 export interface WebhookHandlerCallbacks {
   onMessage?: (message: WebhookMessage) => Promise<void> | void;
   onStatus?: (status: WebhookStatus) => Promise<void> | void;
+}
+
+// Address message types
+export interface SendAddressMessageParams {
+  to: string;
+  requestType?: 'HOME' | 'WORK';
+  buttonText?: string;
+}
+
+// Interactive CTA URL Button message types
+export interface InteractiveCtaUrlButton {
+  type: 'url';
+  title: string;
+  url: string;
+}
+
+export interface SendInteractiveCtaUrlButtonMessageParams {
+  to: string;
+  body: string;
+  buttons: InteractiveCtaUrlButton[];
+  headerText?: string;
+  footerText?: string;
+}
+
+
+export interface InteractiveFlowParams {
+  to: string;
+  flowId: string;
+  flowToken?: string;
+  flowCta?: string;
+  flowTitle?: string;
+  flowDescription?: string;
+  screen?: string;
+  data?: Record<string, any>;
+}
+
+
+export interface SendInteractiveLocationRequestParams {
+  to: string;
+  body: string;
+  buttonText?: string;
+  footerText?: string;
+}
+
+
+export interface MessageContext {
+  messageId: string;
+}
+
+
+export interface TemplateTtlParams {
+  ttl?: string; // Format: P0DT0H30M0S
+}
+
+
+export interface ExtendedSendTemplateMessageParams extends SendTemplateMessageParams {
+  ttl?: string; // TTL in ISO 8601 duration format (e.g., "PT10M" for 10 minutes)
 }
