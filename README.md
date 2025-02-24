@@ -3,7 +3,7 @@
 A comprehensive, developer-friendly Node.js wrapper for the WhatsApp Cloud API. This SDK provides intuitive access to all WhatsApp Business Platform features with strong typing, detailed documentation, and helpful abstractions.
 
 [![npm version](https://img.shields.io/npm/v/whatsapp-cloud-sdk.svg)](https://www.npmjs.com/package/whatsapp-cloud-sdk)
-[![License](https://img.shields.io/github/license/zenturocloud/whatsapp-cloud-sdk-node)](https://github.com/zenturocloud/whatsapp-cloud-sdk-node/blob/main/LICENSE)
+[![License](https://img.shields.io/github/license/zenturocloud/whatsapp-cloud-sdk-node)](https://github.com/Zenturocloud/whatsapp-cloud-sdk-node.js/blob/main/LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-4.9.5-blue)](https://www.typescriptlang.org/)
 
 ## Features
