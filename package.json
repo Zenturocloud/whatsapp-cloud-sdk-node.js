@@ -1,5 +1,5 @@
 {
-  "name": "@zenturocloud/whatsapp-cloud-sdk",
+  "name": "whatsapp-cloud-sdk",
   "version": "1.0.0",
   "description": "A comprehensive Node.js wrapper for the WhatsApp Cloud API",
   "main": "dist/index.js",
