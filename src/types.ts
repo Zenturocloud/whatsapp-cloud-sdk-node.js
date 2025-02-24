@@ -27,7 +27,6 @@ export interface ClientConfig {
   version?: string;
 }
 
-
 export type MediaType = 'audio' | 'document' | 'image' | 'sticker' | 'video';
 
 export interface Component {
@@ -180,7 +179,6 @@ export interface Contact {
   }>;
 }
 
-
 export interface SendTextMessageParams {
   to: string;
   text: string;
@@ -231,7 +229,6 @@ export interface MarkMessageAsReadParams {
   messageId: string;
 }
 
-
 export interface UploadMediaParams {
   file: string;
   type: string;
@@ -245,7 +242,6 @@ export interface DeleteMediaParams {
   mediaId: string;
 }
 
-
 export interface BusinessProfileParams {
   about?: string;
   address?: string;
@@ -255,7 +251,6 @@ export interface BusinessProfileParams {
   vertical?: 'UNDEFINED' | 'OTHER' | 'AUTO' | 'BEAUTY' | 'APPAREL' | 'EDU' | 'ENTERTAIN' | 'EVENT_PLAN' | 'FINANCE' | 'GROCERY' | 'GOVT' | 'HOTEL' | 'HEALTH' | 'NONPROFIT' | 'PROF_SERVICES' | 'RETAIL' | 'TRAVEL' | 'RESTAURANT' | 'NOT_A_BIZ';
   profilePictureUrl?: string;
 }
-
 
 export interface RegisterPhoneNumberParams {
   cc: string;
@@ -273,7 +268,6 @@ export interface UpdatePhoneNumberSettings {
     quality_rating?: boolean;
   };
 }
-
 
 export interface GetTemplatesParams {
   limit?: number;
@@ -300,7 +294,6 @@ export interface CreateTemplateParams {
 export interface DeleteTemplateParams {
   name: string;
 }
-
 
 export interface SendMessageResponse {
   messaging_product: string;
@@ -382,7 +375,6 @@ export interface CreateTemplateResponse {
   status: string;
   category: string;
 }
-
 
 export interface WebhookEvent {
   object: string;
@@ -584,14 +576,12 @@ export interface WebhookHandlerCallbacks {
   onStatus?: (status: WebhookStatus) => Promise<void> | void;
 }
 
-// Address message types
 export interface SendAddressMessageParams {
   to: string;
   requestType?: 'HOME' | 'WORK';
   buttonText?: string;
 }
 
-// Interactive CTA URL Button message types
 export interface InteractiveCtaUrlButton {
   type: 'url';
   title: string;
@@ -606,7 +596,6 @@ export interface SendInteractiveCtaUrlButtonMessageParams {
   footerText?: string;
 }
 
-
 export interface InteractiveFlowParams {
   to: string;
   flowId: string;
@@ -618,7 +607,6 @@ export interface InteractiveFlowParams {
   data?: Record<string, any>;
 }
 
-
 export interface SendInteractiveLocationRequestParams {
   to: string;
   body: string;
@@ -626,17 +614,10 @@ export interface SendInteractiveLocationRequestParams {
   footerText?: string;
 }
 
-
 export interface MessageContext {
   messageId: string;
 }
 
-
-export interface TemplateTtlParams {
-  ttl?: string; // Format: P0DT0H30M0S
-}
-
-
 export interface ExtendedSendTemplateMessageParams extends SendTemplateMessageParams {
-  ttl?: string; // TTL in ISO 8601 duration format (e.g., "PT10M" for 10 minutes)
+  ttl?: string;
 }
