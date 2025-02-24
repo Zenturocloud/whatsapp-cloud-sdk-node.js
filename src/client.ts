@@ -384,7 +384,7 @@ export class WhatsAppCloudAPI {
     );
   }
 
-  async updateAccessToken(accessToken: string): void {
+  async updateAccessToken(accessToken: string): Promise<void> {
     this.config.accessToken = accessToken;
     this.axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
   }
