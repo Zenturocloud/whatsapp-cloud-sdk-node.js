@@ -1,0 +1,19 @@
+# Development files
+.git/
+.github/
+.vscode/
+node_modules/
+examples/
+.gitignore
+.eslintrc
+.prettierrc
+jest.config.js
+
+# Tests
+__tests__/
+*.test.ts
+coverage/
+
+# Misc
+.DS_Store
+*.log
