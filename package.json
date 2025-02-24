@@ -1,5 +1,5 @@
 {
-  "name": "whatsapp-cloud-sdk",
+  "name": "@zenturocloud/whatsapp-cloud-sdk",
   "version": "1.0.0",
   "description": "A comprehensive Node.js wrapper for the WhatsApp Cloud API",
   "main": "dist/index.js",
@@ -9,7 +9,11 @@
     "test": "jest",
     "lint": "eslint 'src/**/*.ts'",
     "format": "prettier --write 'src/**/*.ts'",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run lint",
+    "preversion": "npm run lint",
+    "version": "npm run format && git add -A src",
+    "postversion": "git push && git push --tags"
   },
   "keywords": [
     "whatsapp",
