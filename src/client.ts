@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import FormData from 'form-data';
 import { createReadStream } from 'fs';
 import { basename } from 'path';
@@ -11,6 +11,7 @@ import {
   SendMediaMessageParams,
   SendLocationMessageParams,
   SendTemplateMessageParams,
+  ExtendedSendTemplateMessageParams,
   SendInteractiveMessageParams,
   SendContactMessageParams,
   SendReactionParams,
@@ -33,7 +34,12 @@ import {
   DeleteTemplateParams,
   GetTemplatesResponse,
   CreateTemplateResponse,
-  WhatsAppApiError
+  WhatsAppApiError,
+  SendAddressMessageParams,
+  SendInteractiveCtaUrlButtonMessageParams,
+  InteractiveFlowParams,
+  SendInteractiveLocationRequestParams,
+  MessageContext
 } from './types';
 
 export interface ExtendedClientConfig extends ClientConfig {
@@ -51,7 +57,7 @@ export class WhatsAppCloudAPI {
 
   constructor(config: ExtendedClientConfig) {
     this.config = {
-      version: 'v22.0', // Default to v22.0
+      version: 'v22.0',
       maxRequestsPerMinute: 250,
       retryAfterTooManyRequests: true,
       maxRetries: 3,
@@ -451,5 +457,206 @@ export class WhatsAppCloudAPI {
   async updateAccessToken(accessToken: string): Promise<void> {
     this.config.accessToken = accessToken;
     this.axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+  }
+
+  async sendAddressMessage(params: SendAddressMessageParams): Promise<SendMessageResponse> {
+    return this.rateLimiter.executeWithRateLimit(async () => {
+      const { to, requestType = 'HOME', buttonText = 'Send Address' } = params;
+      
+      const payload = {
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        to,
+        type: 'address',
+        address: {
+          request_address: {
+            type: requestType,
+            button_text: buttonText
+          }
+        }
+      };
+      
+      const response = await this.axiosInstance.post(this.getMessagesUrl(), payload);
+      return response.data;
+    });
+  }
+
+  async sendInteractiveCtaUrlButtonMessage(params: SendInteractiveCtaUrlButtonMessageParams): Promise<SendMessageResponse> {
+    return this.rateLimiter.executeWithRateLimit(async () => {
+      const { to, body, buttons, headerText, footerText } = params;
+      
+      const payload: any = {
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        to,
+        type: 'interactive',
+        interactive: {
+          type: 'cta_url',
+          body: {
+            text: body
+          },
+          action: {
+            buttons: buttons.map(button => ({
+              type: button.type,
+              title: button.title,
+              url: button.url
+            }))
+          }
+        }
+      };
+      
+      if (headerText) {
+        payload.interactive.header = {
+          type: 'text',
+          text: headerText
+        };
+      }
+      
+      if (footerText) {
+        payload.interactive.footer = {
+          text: footerText
+        };
+      }
+      
+      const response = await this.axiosInstance.post(this.getMessagesUrl(), payload);
+      return response.data;
+    });
+  }
+
+  async sendInteractiveFlowMessage(params: InteractiveFlowParams): Promise<SendMessageResponse> {
+    return this.rateLimiter.executeWithRateLimit(async () => {
+      const { to, flowId, flowToken, flowCta, flowTitle, flowDescription, screen, data } = params;
+      
+      const payload: any = {
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        to,
+        type: 'interactive',
+        interactive: {
+          type: 'flow',
+          body: {
+            text: flowDescription || 'Please complete this flow'
+          },
+          action: {
+            name: flowTitle || 'flow',
+            parameters: {
+              flow_token: flowToken,
+              flow_id: flowId,
+              flow_cta: flowCta || 'Start'
+            }
+          }
+        }
+      };
+      
+      if (screen || data) {
+        payload.interactive.flow = {
+          id: flowId
+        };
+        
+        if (screen) {
+          payload.interactive.flow.data = { screen };
+        }
+        
+        if (data) {
+          payload.interactive.flow.data = {
+            ...payload.interactive.flow.data,
+            data
+          };
+        }
+      }
+      
+      const response = await this.axiosInstance.post(this.getMessagesUrl(), payload);
+      return response.data;
+    });
+  }
+
+  async sendInteractiveLocationRequestMessage(params: SendInteractiveLocationRequestParams): Promise<SendMessageResponse> {
+    return this.rateLimiter.executeWithRateLimit(async () => {
+      const { to, body, buttonText = 'Send Location', footerText } = params;
+      
+      const payload: any = {
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        to,
+        type: 'interactive',
+        interactive: {
+          type: 'location_request_message',
+          body: {
+            text: body
+          },
+          action: {
+            name: 'send_location',
+            button: buttonText
+          }
+        }
+      };
+      
+      if (footerText) {
+        payload.interactive.footer = {
+          text: footerText
+        };
+      }
+      
+      const response = await this.axiosInstance.post(this.getMessagesUrl(), payload);
+      return response.data;
+    });
+  }
+
+  async sendContextualReply(context: MessageContext, messageFunc: () => Promise<SendMessageResponse>): Promise<SendMessageResponse> {
+    return this.rateLimiter.executeWithRateLimit(async () => {
+      const originalRequest = this.axiosInstance.request;
+      
+      try {
+        this.axiosInstance.request = async (config) => {
+          if (config.data && typeof config.data === 'object') {
+            config.data.context = {
+              message_id: context.messageId
+            };
+          } else if (config.data && typeof config.data === 'string') {
+            const data = JSON.parse(config.data);
+            data.context = {
+              message_id: context.messageId
+            };
+            config.data = JSON.stringify(data);
+          }
+          
+          return originalRequest.call(this.axiosInstance, config);
+        };
+        
+        return await messageFunc();
+      } finally {
+        this.axiosInstance.request = originalRequest;
+      }
+    });
+  }
+
+  async sendTemplateMessageWithTtl(params: ExtendedSendTemplateMessageParams): Promise<SendMessageResponse> {
+    return this.rateLimiter.executeWithRateLimit(async () => {
+      const { to, templateName, languageCode, components, ttl } = params;
+      
+      const payload: any = {
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        to,
+        type: 'template',
+        template: {
+          name: templateName,
+          language: {
+            code: languageCode
+          }
+        }
+      };
+      
+      if (components) {
+        payload.template.components = components;
+      }
+      
+      if (ttl) {
+        payload.ttl = ttl;
+      }
+      
+      const response = await this.axiosInstance.post(this.getMessagesUrl(), payload);
+      return response.data;
+    });
   }
 }
