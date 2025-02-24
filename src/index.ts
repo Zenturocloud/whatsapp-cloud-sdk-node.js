@@ -1,15 +1,12 @@
-import { WhatsAppCloudAPI } from './client';
+import { WhatsAppCloudAPI, ExtendedClientConfig } from './client';
 import { WebhookHandler } from './webhook';
+import { RateLimiter } from './rate-limiter';
+import { ErrorHandler } from './error-handler';
 
-export { WhatsAppCloudAPI, WebhookHandler };
+export { WhatsAppCloudAPI, WebhookHandler, RateLimiter, ErrorHandler };
 export * from './types';
 
-export function createClient(config: {
-  accessToken: string;
-  phoneNumberId: string;
-  businessAccountId?: string;
-  version?: string;
-}) {
+export function createClient(config: ExtendedClientConfig) {
   return new WhatsAppCloudAPI(config);
 }
 
